@@ -23,7 +23,7 @@ python extractor_calidda.py
 
 ## Estructura
 
-md´´´
+```md
 script-calidda-usuarios/
 ├── .env                          # Credenciales (NO subir a Git)
 ├── .env.example                  # Ejemplo de configuración
@@ -35,4 +35,4 @@ script-calidda-usuarios/
 └── consultas_credito/            # Carpeta de resultados
     ├── 12345678_20251025_143022.txt
     └── ...
-´´´
+```
