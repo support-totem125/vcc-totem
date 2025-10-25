@@ -3,7 +3,6 @@
 
 # Archivos de resultados
 consultas_credito/
-*.txt
 lista_dnis.txt
 
 # Logs
