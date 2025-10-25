@@ -12,10 +12,21 @@ cp .env.example .env
 
 nano .env  # o usa tu editor favorito
 
-## 4. Crear lista de DNIs
+## 4. Crear lista de DNIs (En Linux)
 
-echo "42007772" > lista_dnis.txt
+```bash
 echo "12345678" >> lista_dnis.txt
+echo "23456789" >> lista_dnis.txt
+```
+
+o
+
+- Puedes crear el archivo "lista_dnis.txt" manualmente e ingresar los numeros
+
+```txt
+12345678
+23456789
+```
 
 ## 5. Ejecutar
 
