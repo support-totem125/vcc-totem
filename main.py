@@ -98,15 +98,11 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         
         titulo = "🎉 ¡FELICITACIONES!"
         mensaje = f"""Hola {nombre},
-
-            ¡Tenemos excelentes noticias para ti!
-
-            Tienes una línea de crédito APROBADA por:
-            💰 S/ {monto:,.2f}
-
-            Esta oferta está vigente desde: {fecha_vigencia}
-
-            ¡Gracias por confiar en Calidda!"""
+¡Tenemos excelentes noticias para ti!
+Tienes una línea de crédito APROBADA por:
+💰 S/ {monto:,.2f}
+Esta oferta está vigente desde: {fecha_vigencia}
+¡Gracias por confiar en Calidda!"""
         
         return titulo, mensaje, True
     
@@ -117,22 +113,16 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         
         titulo = "ℹ️ INFORMACIÓN DE TU CONSULTA"
         mensaje = f"""Hola {nombre},
-
-            Gracias por tu interés en nuestros servicios de crédito.
-
-            En este momento no cuentas con una línea de crédito disponible.
-
-            📋 Estado: {segmentacion}
-
-            💡 ¿Cómo puedo calificar?
-               • Mantén tus pagos al día
-               • Continúa usando nuestro servicio regularmente
-               • Evaluamos periódicamente a nuestros clientes
-
-            Sigue usando el servicio de Calidda y muy pronto podrías calificar 
-            para una oferta crediticia.
-
-            ¡Hasta luego!"""
+Gracias por tu interés en nuestros servicios de crédito.
+En este momento no cuentas con una línea de crédito disponible.
+📋 Estado: {segmentacion}
+💡 ¿Cómo puedo calificar?
+   • Mantén tus pagos al día
+   • Continúa usando nuestro servicio regularmente
+   • Evaluamos periódicamente a nuestros clientes
+Sigue usando el servicio de Calidda y muy pronto podrías calificar 
+para una oferta crediticia.
+¡Hasta luego!"""
         
         return titulo, mensaje, False
 
@@ -140,16 +130,13 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         # DNI no encontrado
         titulo = "⚠️ DNI NO ENCONTRADO"
         mensaje = """Lo sentimos,
+No pudimos encontrar información asociada a este DNI en nuestro sistema.
+Posibles razones:
+   • El DNI no está registrado como cliente de Calidda
+   • Existe un error en el número ingresado
+Por favor, verifica el DNI e inténtalo nuevamente.
 
-            No pudimos encontrar información asociada a este DNI en nuestro sistema.
-
-            Posibles razones:
-               • El DNI no está registrado como cliente de Calidda
-               • Existe un error en el número ingresado
-
-            Por favor, verifica el DNI e inténtalo nuevamente.
-            
-            ¡Gracias!"""
+¡Gracias!"""
         
         return titulo, mensaje, False
     
@@ -158,10 +145,8 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         titulo = "⚠️ INFORMACIÓN"
         
         mensaje = f"""Hola Cliente,
-
-            En este momento no podemos procesar tu consulta.
-
-            ¡Gracias por tu comprensión!"""
+En este momento no podemos procesar tu consulta.
+¡Gracias por tu comprensión!"""
         
         return titulo, mensaje, False
 
