@@ -35,9 +35,9 @@ LOGIN_API = BASE_URL + os.getenv('LOGIN_API', '/FNB_Services/api/Seguridad/auten
 CONSULTA_API = BASE_URL + os.getenv('CONSULTA_API', '/FNB_Services/api/financiamiento/lineaCredito')
 
 # ========== CONFIGURACIÓN DE SEGURIDAD ==========
-DELAY_MIN = float(os.getenv('DELAY_MIN', '3'))
-DELAY_MAX = float(os.getenv('DELAY_MAX', '7'))
-TIMEOUT = int(os.getenv('TIMEOUT', '30'))
+DELAY_MIN = float(os.getenv('DELAY_MIN', '10'))
+DELAY_MAX = float(os.getenv('DELAY_MAX', '207'))
+TIMEOUT = int(os.getenv('TIMEOUT', '60'))
 MAX_CONSULTAS_POR_SESION = int(os.getenv('MAX_CONSULTAS_POR_SESION', '50'))
 
 # ========== DIRECTORIOS ==========
