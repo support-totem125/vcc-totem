@@ -269,9 +269,8 @@ def consultar_dni(session, dni, id_aliado):
         logger.error(f"Error consultando DNI {dni}: {e}")
         return None, f'exception: {str(e)}', str(e)
 
-def guardar_txt(dni, data, estado='success', mensaje_api=None):
-    """Guardar resultado en archivo TXT con mensaje personalizado"""
-    archivo = Path(OUTPUT_DIR) / f"{dni}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+def mostrar_resultado(dni, data, estado='success', mensaje_api=None):
+    """Mostrar resultado en consola con mensaje personalizado"""
     
     # Determinar estado y generar mensaje
     estado_consulta = determinar_estado_consulta(data, estado, mensaje_api)
@@ -296,102 +295,110 @@ def guardar_txt(dni, data, estado='success', mensaje_api=None):
         icono_estado = "❌"
     
     try:
-        with open(archivo, 'w', encoding='utf-8') as f:
-            # Encabezado
-            f.write("=" * 70 + "\n")
-            f.write("CALIDDA - CONSULTA DE LÍNEA DE CRÉDITO\n")
-            f.write("=" * 70 + "\n\n")
-            f.write(f"Fecha de consulta: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write(f"DNI consultado: {dni}\n")
-            f.write(f"Estado: {estado_dni}\n")  # <-- ESTADO MEJORADO
+        # Encabezado
+        print("=" * 70)
+        print("CALIDDA - CONSULTA DE LÍNEA DE CRÉDITO")
+        print("=" * 70)
+        print()
+        print(f"Fecha de consulta: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"DNI consultado: {dni}")
+        print(f"Estado: {estado_dni}")
+        
+        # Solo verificar LIMA si el DNI es válido (tiene ID de cliente)
+        if data and data.get('id'):
+            es_de_lima = False
+            if data.get('cuentasContrato'):
+                for cuenta in data['cuentasContrato']:
+                    direccion = cuenta.get('direccion', '').strip()
+                    if direccion.upper().endswith('LIMA'):
+                        es_de_lima = True
+                        break
             
-            # Solo verificar LIMA si el DNI es válido (tiene ID de cliente)
-            if data and data.get('id'):
-                es_de_lima = False
-                if data.get('cuentasContrato'):
-                    for cuenta in data['cuentasContrato']:
-                        direccion = cuenta.get('direccion', '').strip()
-                        if direccion.upper().endswith('LIMA'):
-                            es_de_lima = True
-                            break
-                
-                f.write(f"{'ES DE LIMA' if es_de_lima else 'NO ES DE LIMA'}\n")
-            
-            f.write("\n")
-            
-            # ========== MENSAJE PARA EL CLIENTE ==========
-            f.write("=" * 70 + "\n")
-            f.write(titulo + "\n")
-            f.write("=" * 70 + "\n\n")
-            f.write(mensaje_cliente)
-            f.write("\n\n")
+            print(f"{'ES DE LIMA' if es_de_lima else 'NO ES DE LIMA'}")
+        
+        print()
+        
+        # ========== MENSAJE PARA EL CLIENTE ==========
+        print("=" * 70)
+        print(titulo)
+        print("=" * 70)
+        print()
+        print(mensaje_cliente)
+        print()
             
             # ========== DATOS TÉCNICOS (Solo si hay data) ==========
-            if data:
-                f.write("=" * 70 + "\n")
-                f.write("📋 INFORMACIÓN TÉCNICA DEL CLIENTE\n")
-                f.write("=" * 70 + "\n\n")
-                
-                f.write(f"ID Cliente: {data.get('id', 'N/A')}\n")
-                f.write(f"Nombre completo: {data.get('nombre', 'N/A')}\n")
-                f.write(f"DNI: {data.get('numeroDocumento', dni)}\n")
-                f.write(f"Segmentación: {data.get('segmentacionCliente', 'N/A')}\n\n")
-                
-                # ========== LÍNEA DE CRÉDITO (PRIORIDAD) ==========
-                f.write("-" * 70 + "\n")
-                f.write("LÍNEA DE CRÉDITO\n")
-                f.write("-" * 70 + "\n\n")
-                
-                tiene_credito = data.get('tieneLineaCredito', False)
-                f.write(f"Tiene línea de crédito: {'SÍ' if tiene_credito else 'NO'}\n")
-                
-                if tiene_credito:
-                    linea = data.get('lineaCredito', 0)
-                    f.write(f"Monto disponible: S/ {linea:,.2f}\n")
-                    f.write(f"Fecha de carga: {data.get('fechaCarga', 'N/A')}\n")
-                    f.write(f"ID Consulta: {data.get('idConsulta', 'N/A')}\n")
-                
-                # Contacto SAP
-                if data.get('correoSAP') or data.get('numeroTelefonoSAP'):
-                    f.write(f"\n{'-'*70}\n")
-                    f.write("CONTACTO SAP\n")
-                    f.write(f"{'-'*70}\n\n")
-                    f.write(f"Email: {data.get('correoSAP', 'N/A')}\n")
-                    f.write(f"Teléfono: {data.get('numeroTelefonoSAP', 'N/A')}\n")
-                
-                # Cuentas y direcciones
-                if data.get('cuentasContrato'):
-                    f.write(f"\n{'-'*70}\n")
-                    f.write("CUENTAS Y DIRECCIONES\n")
-                    f.write(f"{'-'*70}\n\n")
-                    
-                    for idx, cuenta in enumerate(data['cuentasContrato'], 1):
-                        f.write(f"Cuenta {idx}:\n")
-                        f.write(f"  ID: {cuenta.get('id', 'N/A')}\n")
-                        f.write(f"  Cuenta corriente: {cuenta.get('cuentaCorriente', 'N/A')}\n")
-                        f.write(f"  Dirección: {procesar_direccion(cuenta.get('direccion', 'N/A'))}\n")
-                        f.write(f"  Categoría: {cuenta.get('categoria', 'N/A')}\n")
-                        f.write(f"  Ubigeo INEI: {cuenta.get('ubigeoInei', 'N/A')}\n")
-                        f.write(f"  Estado: {'Activo' if cuenta.get('status') else 'Inactivo'}\n\n")
+        if data:
+            print("=" * 70)
+            print("📋 INFORMACIÓN TÉCNICA DEL CLIENTE")
+            print("=" * 70)
+            print()
             
-            elif mensaje_api:
-                # Si no hay data pero hay mensaje de error
-                f.write("=" * 70 + "\n")
-                f.write("📋 DETALLE TÉCNICO\n")
-                f.write("=" * 70 + "\n\n")
-                f.write(f"Mensaje del sistema:\n{limpiar_mensaje_html(mensaje_api)}\n")
+            print(f"ID Cliente: {data.get('id', 'N/A')}")
+            print(f"Nombre completo: {data.get('nombre', 'N/A')}")
+            print(f"DNI: {data.get('numeroDocumento', dni)}")
+            print(f"Segmentación: {data.get('segmentacionCliente', 'N/A')}")
+            print()
             
-            # Pie de página
-            f.write("\n" + "=" * 70 + "\n")
-            f.write("FIN DEL REPORTE\n")
-            f.write("=" * 70 + "\n")
+            # ========== LÍNEA DE CRÉDITO (PRIORIDAD) ==========
+            print("-" * 70)
+            print("LÍNEA DE CRÉDITO")
+            print("-" * 70)
+            print()
+            
+            tiene_credito = data.get('tieneLineaCredito', False)
+            print(f"Tiene línea de crédito: {'SÍ' if tiene_credito else 'NO'}")
+            
+            if tiene_credito:
+                linea = data.get('lineaCredito', 0)
+                print(f"Monto disponible: S/ {linea:,.2f}")
+                print(f"Fecha de carga: {data.get('fechaCarga', 'N/A')}")
+                print(f"ID Consulta: {data.get('idConsulta', 'N/A')}")
+            
+            # Contacto SAP
+            if data.get('correoSAP') or data.get('numeroTelefonoSAP'):
+                print("\n" + "-" * 70)
+                print("CONTACTO SAP")
+                print("-" * 70)
+                print()
+                print(f"Email: {data.get('correoSAP', 'N/A')}")
+                print(f"Teléfono: {data.get('numeroTelefonoSAP', 'N/A')}")
+            
+            # Cuentas y direcciones
+            if data.get('cuentasContrato'):
+                print("\n" + "-" * 70)
+                print("CUENTAS Y DIRECCIONES")
+                print("-" * 70)
+                print()
+                
+                for idx, cuenta in enumerate(data['cuentasContrato'], 1):
+                    print(f"Cuenta {idx}:")
+                    print(f"  ID: {cuenta.get('id', 'N/A')}")
+                    print(f"  Cuenta corriente: {cuenta.get('cuentaCorriente', 'N/A')}")
+                    print(f"  Dirección: {procesar_direccion(cuenta.get('direccion', 'N/A'))}")
+                    print(f"  Categoría: {cuenta.get('categoria', 'N/A')}")
+                    print(f"  Ubigeo INEI: {cuenta.get('ubigeoInei', 'N/A')}")
+                    print(f"  Estado: {'Activo' if cuenta.get('status') else 'Inactivo'}")
+                    print()
         
-        logger.info(f"Archivo guardado: {archivo.name} - Estado: {estado_dni}")
-        return str(archivo)
+        elif mensaje_api:
+            # Si no hay data pero hay mensaje de error
+            print("=" * 70)
+            print("📋 DETALLE TÉCNICO")
+            print("=" * 70)
+            print()
+            print(f"Mensaje del sistema:\n{limpiar_mensaje_html(mensaje_api)}")
+        
+        # Pie de página
+        print("\n" + "=" * 70)
+        print("FIN DEL REPORTE")
+        print("=" * 70)
+        
+        logger.info(f"Consulta completada - Estado: {estado_dni}")
+        return True
         
     except Exception as e:
-        logger.error(f"Error guardando archivo: {e}")
-        return None
+        logger.error(f"Error mostrando resultado: {e}")
+        return False
 
 def leer_dnis_archivo(archivo=None):
     """Leer DNIs desde archivo TXT"""
@@ -423,18 +430,7 @@ def main():
     # Mostrar configuración
     mostrar_config()
     
-    # Crear directorio de salida
-    crear_directorio()
-    
-    # Leer DNIs desde archivo
-    dnis = leer_dnis_archivo()
-    
-    if not dnis:
-        logger.error("No hay DNIs para procesar")
-        print("\n💡 Crea un archivo lista_dnis.txt con un DNI por línea")
-        return
-    
-    # Login
+    # Login inicial
     print("=" * 70)
     print("🔐 INICIANDO SESIÓN")
     print("=" * 70)
@@ -447,129 +443,81 @@ def main():
         return
     
     print(f"\n✅ Sesión iniciada correctamente\n")
-    
-    # Procesar DNIs
-    print("=" * 70)
-    print(f"📋 PROCESANDO {len(dnis)} DNI(S)")
-    print("=" * 70)
-    print()
-    
-    exitosos = 0
-    con_credito = 0
-    sin_credito = 0
-    dni_invalidos = 0
-    errores = 0
     consultas_sesion = 0
     
-    for i, dni in enumerate(dnis, 1):
+    # Bucle principal de consultas
+    while True:
+        dni = input("\nIngrese el DNI a consultar (o 'q' para salir): ").strip()
+        
+        if dni.lower() == 'q':
+            print("\n✅ Programa finalizado")
+            return
+            
+        # Validar que sea un DNI válido (8 dígitos)
+        if not dni.isdigit() or len(dni) != 8:
+            print("❌ DNI inválido. Debe contener 8 dígitos numéricos")
+            continue
+    
         # Reconectar si es necesario
         if consultas_sesion >= MAX_CONSULTAS_POR_SESION:
-            logger.info(f"Reconectando después de {consultas_sesion} consultas...")
+            logger.info("Reconectando...")
             time.sleep(random.uniform(10, 20))
             session, id_aliado = login()
             if not session:
                 logger.error("Error al reconectar")
-                break
+                continue
             consultas_sesion = 0
         
-        print(f"[{i}/{len(dnis)}] DNI: {dni}")
+        print("\n" + "=" * 70)
+        print("📋 PROCESANDO CONSULTA")
+        print("=" * 70)
+        print(f"\nConsultando DNI: {dni}")
         
         data, estado, mensaje_api = consultar_dni(session, dni, id_aliado)
         consultas_sesion += 1
         
         # ========== CASO 1: DNI VÁLIDO CON DATOS ==========
         if estado == 'success' and data and data.get('id'):
-            archivo = guardar_txt(dni, data, estado, mensaje_api)
-            if archivo:
-                exitosos += 1
-                
-                if data.get('tieneLineaCredito'):
-                    con_credito += 1
-                    monto = data.get('lineaCredito', 0)
-                    print(f"   ✅ CON OFERTA - S/ {monto:,.2f}")
-                    print(f"   👤 {data.get('nombre', 'N/A')}")
-                else:
-                    sin_credito += 1
-                    print(f"   ⚠️ SIN OFERTA (DNI válido)")
-                    print(f"   👤 {data.get('nombre', 'N/A')}")
-                
-                print(f"   📄 {Path(archivo).name}")
+            mostrar_resultado(dni, data, estado, mensaje_api)
         
         # ========== CASO 2: DNI NO VÁLIDO O SIN DATOS ==========
         elif estado.startswith('invalid:'):
-            archivo = guardar_txt(dni, data, estado, mensaje_api)
-            if archivo:
-                dni_invalidos += 1
-                
-                # Verificar si es problema de campaña o DNI no encontrado
-                mensaje = (mensaje_api or '').lower()
-                if 'no encontrado' in mensaje or 'no existe' in mensaje:
-                    print(f"   ❌ DNI NO ENCONTRADO")
-                elif 'campaña' in mensaje:
-                    print(f"   ⚠️ SIN CAMPAÑA ACTIVA")
-                
-                print(f"   📄 {Path(archivo).name}")
+            mostrar_resultado(dni, data, estado, mensaje_api)
         
         # ========== CASO 3: SESIÓN EXPIRADA ==========
         elif estado == 'expired':
             logger.warning("Sesión expirada - Reconectando...")
+            print("⚠️ Sesión expirada - Reconectando...")
             session, id_aliado = login()
             if session:
                 data, estado, mensaje_api = consultar_dni(session, dni, id_aliado)
-                if estado == 'success' and data:
-                    archivo = guardar_txt(dni, data, estado, mensaje_api)
-                    if archivo:
-                        exitosos += 1
-                        if data.get('tieneLineaCredito'):
-                            con_credito += 1
-                        else:
-                            sin_credito += 1
-                        print(f"   ✅ Reintento exitoso")
+                mostrar_resultado(dni, data, estado, mensaje_api)
         
         # ========== CASO 4: RATE LIMIT ==========
         elif estado == 'rate_limit':
             logger.warning("RATE LIMIT - Esperando 60 segundos...")
-            print(f"   ⚠️ RATE LIMIT - Esperando 60s...")
+            print(f"⚠️ RATE LIMIT - Esperando 60s...")
             time.sleep(60)
-            errores += 1
+            continue
         
         # ========== CASO 5: BLOQUEADO ==========
         elif estado == 'blocked':
             logger.error("ACCESO BLOQUEADO")
-            print(f"   🚨 BLOQUEADO")
-            errores += 1
-            break
+            print("🚨 ACCESO BLOQUEADO")
+            print("El programa se cerrará...")
+            return
         
         # ========== CASO 6: OTROS ERRORES ==========
         else:
             logger.error(f"Error en DNI {dni}: {estado}")
-            print(f"   ❌ Error técnico: {estado}")
-            archivo = guardar_txt(dni, data, estado, mensaje_api)
-            errores += 1
+            print(f"❌ Error técnico: {estado}")
+            mostrar_resultado(dni, data, estado, mensaje_api)
         
         # Delay entre consultas
-        if i < len(dnis):
-            delay = random.uniform(DELAY_MIN, DELAY_MAX)
-            logger.debug(f"Esperando {delay:.1f}s")
-            print(f"   ⏳ {delay:.1f}s...\n")
-            time.sleep(delay)
+        delay = random.uniform(DELAY_MIN, DELAY_MAX)
+        print(f"\nEsperando {delay:.1f}s antes de la siguiente consulta...")
     
-    # Resumen final
-    print("=" * 70)
-    print("📊 RESUMEN FINAL")
-    print("=" * 70)
-    print(f"Total procesados: {len(dnis)}")
-    print(f"\n✅ DNIs válidos: {exitosos}")
-    if exitosos > 0:
-        print(f"   ├─ Con línea de crédito: {con_credito} ({con_credito/exitosos*100:.1f}%)")
-        print(f"   └─ Sin línea de crédito: {sin_credito} ({sin_credito/exitosos*100:.1f}%)")
-    print(f"\n❌ DNIs inválidos/sin campaña: {dni_invalidos}")
-    print(f"⚠️ Errores técnicos: {errores}")
-    print(f"\n📁 Archivos: {OUTPUT_DIR}/")
-    print(f"📋 Log: {LOG_FILE}")
-    print("✅ Proceso completado\n")
-    
-    logger.info(f"Proceso completado - Válidos: {exitosos}, Inválidos: {dni_invalidos}, Errores: {errores}")
+    print("\n✅ Consulta completada\n")
 
 if __name__ == "__main__":
     try:
