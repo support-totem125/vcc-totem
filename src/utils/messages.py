@@ -24,7 +24,6 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         
         mensaje_completo = textwrap.dedent(f"""
             🎉 ¡FELICITACIONES!
-            
             Hola {nombre},
             ¡Tenemos excelentes noticias para ti!
             Tienes una línea de crédito APROBADA por:
@@ -40,7 +39,6 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         
         mensaje_completo = textwrap.dedent(f"""
             ℹ️ INFORMACIÓN DE TU CONSULTA
-            
             Hola {nombre},
             En este momento no cuentas con una línea de crédito disponible.
             Por favor, mantén tus pagos al día y continúa usando nuestro servicio.
@@ -53,12 +51,10 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         # DNI no encontrado o sin campaña activa
         mensaje_completo = textwrap.dedent("""
             ℹ️ INFORMACIÓN DE TU CONSULTA
-            
             Lo sentimos,
             Por el momento no tienes una campaña activa.
             - Sigue usando el servicio se Calidda
             - Mantente al día con tus recibos.
-            
             Gracias!
         """).strip()
         
@@ -68,7 +64,6 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         # Error genérico u otro caso (incluyendo timeout)
         mensaje_completo = textwrap.dedent("""
             ⚠️ INFORMACIÓN
-            
             Hola Cliente,
             En este momento no podemos procesar tu consulta.
             ¡Gracias por tu comprensión!
