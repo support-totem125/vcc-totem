@@ -91,38 +91,27 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
     
     if estado == 'success' and datos and datos.get('tieneLineaCredito'):
         # Cliente CON línea de crédito - ÚNICA CONDICIÓN PARA OFERTA
-        nombre = datos.get('nombre', 'Cliente').split()[0]  # Primer nombre
+        nombre = datos.get('nombre', 'Cliente')  # Nombre completo
         monto = datos.get('lineaCredito', 0)
-        fecha_carga = datos.get('fechaCarga', '')
-        fecha_vigencia = fecha_carga[:10] if fecha_carga else 'consultar'
         
         titulo = "🎉 ¡FELICITACIONES!"
         mensaje = f"""Hola {nombre},
 ¡Tenemos excelentes noticias para ti!
 Tienes una línea de crédito APROBADA por:
 💰 S/ {monto:,.2f}
-Esta oferta está vigente desde: {fecha_vigencia}
 ¡Gracias por confiar en Calidda!"""
         
         return titulo, mensaje, True
     
     elif estado == 'success' and datos and not datos.get('tieneLineaCredito'):
         # Cliente registrado pero SIN línea de crédito
-        nombre = datos.get('nombre', 'Cliente').split()[0]
-        segmentacion = datos.get('segmentacionCliente', '')
+        nombre = datos.get('nombre', 'Cliente')
         
         titulo = "ℹ️ INFORMACIÓN DE TU CONSULTA"
         mensaje = f"""Hola {nombre},
-Gracias por tu interés en nuestros servicios de crédito.
 En este momento no cuentas con una línea de crédito disponible.
-📋 Estado: {segmentacion}
-💡 ¿Cómo puedo calificar?
-   • Mantén tus pagos al día
-   • Continúa usando nuestro servicio regularmente
-   • Evaluamos periódicamente a nuestros clientes
-Sigue usando el servicio de Calidda y muy pronto podrías calificar 
-para una oferta crediticia.
-¡Hasta luego!"""
+Por favor, mantén tus pagos al día y continúa usando nuestro servicio.
+¡Gracias por confiar en Calidda!"""
         
         return titulo, mensaje, False
 
@@ -131,12 +120,7 @@ para una oferta crediticia.
         titulo = "⚠️ DNI NO ENCONTRADO"
         mensaje = """Lo sentimos,
 No pudimos encontrar información asociada a este DNI en nuestro sistema.
-Posibles razones:
-   • El DNI no está registrado como cliente de Calidda
-   • Existe un error en el número ingresado
-Por favor, verifica el DNI e inténtalo nuevamente.
-
-¡Gracias!"""
+Por favor, verifica el DNI e inténtalo nuevamente."""
         
         return titulo, mensaje, False
     
@@ -245,6 +229,9 @@ def consultar_dni(session, dni, id_aliado):
     }
     
     try:
+        print(f"\nConsultando... (tiempo máximo de espera: {TIMEOUT} segundos)")
+        print("Por favor espere mientras se procesa su solicitud...")
+        
         response = session.get(CONSULTA_API, params=params, timeout=TIMEOUT)
         
         if response.status_code == 200:
@@ -265,6 +252,9 @@ def consultar_dni(session, dni, id_aliado):
         else:
             return None, f'error_{response.status_code}', f'Error HTTP {response.status_code}'
             
+    except requests.exceptions.Timeout:
+        logger.error(f"Tiempo de espera agotado ({TIMEOUT} segundos) consultando DNI {dni}")
+        return None, 'timeout', f'La consulta excedió el tiempo máximo de espera de {TIMEOUT} segundos. Por favor, inténtelo nuevamente.'
     except Exception as e:
         logger.error(f"Error consultando DNI {dni}: {e}")
         return None, f'exception: {str(e)}', str(e)
@@ -285,113 +275,19 @@ def mostrar_resultado(dni, data, estado='success', mensaje_api=None):
         # DNI existe en el sistema (tiene ID de cliente)
         if data.get('tieneLineaCredito'):
             estado_dni = "✅ DNI VÁLIDO - CON OFERTA"
-            icono_estado = "✅"
         else:
             estado_dni = "⚠️ DNI VÁLIDO - SIN OFERTA"
-            icono_estado = "⚠️"
     else:
         # DNI no encontrado o inválido
         estado_dni = "❌ DNI NO ENCONTRADO O INVÁLIDO"
-        icono_estado = "❌"
     
     try:
-        # Encabezado
-        print("=" * 70)
-        print("CALIDDA - CONSULTA DE LÍNEA DE CRÉDITO")
-        print("=" * 70)
+        # Solo mostrar el mensaje personalizado
         print()
-        print(f"Fecha de consulta: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"DNI consultado: {dni}")
-        print(f"Estado: {estado_dni}")
-        
-        # Solo verificar LIMA si el DNI es válido (tiene ID de cliente)
-        if data and data.get('id'):
-            es_de_lima = False
-            if data.get('cuentasContrato'):
-                for cuenta in data['cuentasContrato']:
-                    direccion = cuenta.get('direccion', '').strip()
-                    if direccion.upper().endswith('LIMA'):
-                        es_de_lima = True
-                        break
-            
-            print(f"{'ES DE LIMA' if es_de_lima else 'NO ES DE LIMA'}")
-        
-        print()
-        
-        # ========== MENSAJE PARA EL CLIENTE ==========
-        print("=" * 70)
         print(titulo)
-        print("=" * 70)
         print()
         print(mensaje_cliente)
         print()
-            
-            # ========== DATOS TÉCNICOS (Solo si hay data) ==========
-        if data:
-            print("=" * 70)
-            print("📋 INFORMACIÓN TÉCNICA DEL CLIENTE")
-            print("=" * 70)
-            print()
-            
-            print(f"ID Cliente: {data.get('id', 'N/A')}")
-            print(f"Nombre completo: {data.get('nombre', 'N/A')}")
-            print(f"DNI: {data.get('numeroDocumento', dni)}")
-            print(f"Segmentación: {data.get('segmentacionCliente', 'N/A')}")
-            print()
-            
-            # ========== LÍNEA DE CRÉDITO (PRIORIDAD) ==========
-            print("-" * 70)
-            print("LÍNEA DE CRÉDITO")
-            print("-" * 70)
-            print()
-            
-            tiene_credito = data.get('tieneLineaCredito', False)
-            print(f"Tiene línea de crédito: {'SÍ' if tiene_credito else 'NO'}")
-            
-            if tiene_credito:
-                linea = data.get('lineaCredito', 0)
-                print(f"Monto disponible: S/ {linea:,.2f}")
-                print(f"Fecha de carga: {data.get('fechaCarga', 'N/A')}")
-                print(f"ID Consulta: {data.get('idConsulta', 'N/A')}")
-            
-            # Contacto SAP
-            if data.get('correoSAP') or data.get('numeroTelefonoSAP'):
-                print("\n" + "-" * 70)
-                print("CONTACTO SAP")
-                print("-" * 70)
-                print()
-                print(f"Email: {data.get('correoSAP', 'N/A')}")
-                print(f"Teléfono: {data.get('numeroTelefonoSAP', 'N/A')}")
-            
-            # Cuentas y direcciones
-            if data.get('cuentasContrato'):
-                print("\n" + "-" * 70)
-                print("CUENTAS Y DIRECCIONES")
-                print("-" * 70)
-                print()
-                
-                for idx, cuenta in enumerate(data['cuentasContrato'], 1):
-                    print(f"Cuenta {idx}:")
-                    print(f"  ID: {cuenta.get('id', 'N/A')}")
-                    print(f"  Cuenta corriente: {cuenta.get('cuentaCorriente', 'N/A')}")
-                    print(f"  Dirección: {procesar_direccion(cuenta.get('direccion', 'N/A'))}")
-                    print(f"  Categoría: {cuenta.get('categoria', 'N/A')}")
-                    print(f"  Ubigeo INEI: {cuenta.get('ubigeoInei', 'N/A')}")
-                    print(f"  Estado: {'Activo' if cuenta.get('status') else 'Inactivo'}")
-                    print()
-        
-        elif mensaje_api:
-            # Si no hay data pero hay mensaje de error
-            print("=" * 70)
-            print("📋 DETALLE TÉCNICO")
-            print("=" * 70)
-            print()
-            print(f"Mensaje del sistema:\n{limpiar_mensaje_html(mensaje_api)}")
-        
-        # Pie de página
-        print("\n" + "=" * 70)
-        print("FIN DEL REPORTE")
-        print("=" * 70)
         
         logger.info(f"Consulta completada - Estado: {estado_dni}")
         return True
@@ -507,17 +403,21 @@ def main():
             print("El programa se cerrará...")
             return
         
-        # ========== CASO 6: OTROS ERRORES ==========
-        else:
-            logger.error(f"Error en DNI {dni}: {estado}")
-            print(f"❌ Error técnico: {estado}")
-            mostrar_resultado(dni, data, estado, mensaje_api)
+        # ========== CASO 6: TIMEOUT ==========
+        elif estado == 'timeout':
+            print(f"\n❌ Error: {mensaje_api}")
+            print("Por favor, inténtelo nuevamente.")
+        
+        # ========== CASO 7: OTROS ERRORES ==========
+        # else:
+        #     logger.error(f"Error en DNI {dni}: {estado}")
+        #     print(f"❌ Error técnico: {estado}")
+        #     mostrar_resultado(dni, data, estado, mensaje_api)
         
         # Delay entre consultas
         delay = random.uniform(DELAY_MIN, DELAY_MAX)
         print(f"\nEsperando {delay:.1f}s antes de la siguiente consulta...")
     
-    print("\n✅ Consulta completada\n")
 
 if __name__ == "__main__":
     try:
