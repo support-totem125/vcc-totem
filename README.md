@@ -1,18 +1,22 @@
 # Pasos
 
-## 1. Instalar dependencias
+## 1. Crear entorno virtual
+
+.\venv\Scripts\activate
+
+## 2. Instalar dependencias
 
 pip install -r requirements.txt
 
-## 2. Copiar plantilla de configuración
+## 3. Copiar plantilla de configuración
 
 cp .env.example .env
 
-## 3. Editar .env con tus credenciales
+## 4. Editar .env con tus credenciales
 
 nano .env  # o usa tu editor favorito
 
-## 4. Ejecutar
+## 5. Ejecutar
 
 python extractor_calidda.py
 
