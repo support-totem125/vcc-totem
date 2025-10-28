@@ -12,56 +12,60 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         mensaje_error: Mensaje de error de la API
     
     Returns:
-        Tupla (titulo, mensaje, tiene_oferta)
+        Tupla (mensaje_completo, tiene_oferta)
     """
     
     if estado == 'success' and datos and datos.get('tieneLineaCredito'):
         # Cliente CON línea de crédito - ÚNICA CONDICIÓN PARA OFERTA
-        nombre = datos.get('nombre', 'Cliente')  # Nombre completo
+        nombre = datos.get('nombre', 'Cliente')
         monto = datos.get('lineaCredito', 0)
         
-        titulo = "🎉 ¡FELICITACIONES!"
-        mensaje = f"""Hola {nombre},
+        mensaje_completo = f"""🎉 ¡FELICITACIONES!
+
+Hola {nombre},
 ¡Tenemos excelentes noticias para ti!
 Tienes una línea de crédito APROBADA por:
 💰 S/ {monto:,.2f}
 ¡Gracias por confiar en Calidda!"""
         
-        return titulo, mensaje, True
+        return mensaje_completo, True
     
     elif estado == 'success' and datos and not datos.get('tieneLineaCredito'):
         # Cliente registrado pero SIN línea de crédito
         nombre = datos.get('nombre', 'Cliente')
         
-        titulo = "ℹ️ INFORMACIÓN DE TU CONSULTA"
-        mensaje = f"""Hola {nombre},
+        mensaje_completo = f"""ℹ️ INFORMACIÓN DE TU CONSULTA
+
+Hola {nombre},
 En este momento no cuentas con una línea de crédito disponible.
 Por favor, mantén tus pagos al día y continúa usando nuestro servicio.
 ¡Gracias por confiar en Calidda!"""
         
-        return titulo, mensaje, False
+        return mensaje_completo, False
 
     elif estado == 'dni_invalido' or (mensaje_error and ('no encontrado' in mensaje_error.lower() or 'no califica' in mensaje_error.lower() or 'no tiene campaña' in mensaje_error.lower())):
         # DNI no encontrado o sin campaña activa
-        titulo = "ℹ️ INFORMACIÓN DE TU CONSULTA"
-        mensaje = """Lo sentimos,
+        mensaje_completo = """ℹ️ INFORMACIÓN DE TU CONSULTA
+
+Lo sentimos,
 Por el momento no tienes una campaña activa.
 - Sigue usando el servicio se Calidda
 - Mantente al día con tus recibos.
 
 Gracias!"""
         
-        return titulo, mensaje, False
+        return mensaje_completo, False
     
     else:
         # Error genérico u otro caso (incluyendo timeout)
-        titulo = "⚠️ INFORMACIÓN"
-        
-        mensaje = """Hola Cliente,
+        mensaje_completo = """⚠️ INFORMACIÓN
+
+Hola Cliente,
 En este momento no podemos procesar tu consulta.
 ¡Gracias por tu comprensión!"""
         
-        return titulo, mensaje, False
+        return mensaje_completo, False
+
 
 def determinar_estado_consulta(data, estado, mensaje_api):
     """Determinar el estado de la consulta para mensaje personalizado"""
@@ -88,7 +92,7 @@ def mostrar_resultado(dni, data, estado='success', mensaje_api=None):
     
     # Determinar estado y generar mensaje
     estado_consulta = determinar_estado_consulta(data, estado, mensaje_api)
-    titulo, mensaje_cliente, tiene_oferta = generar_mensaje_personalizado(
+    mensaje_completo, tiene_oferta = generar_mensaje_personalizado(
         estado_consulta, 
         data, 
         mensaje_api
@@ -106,14 +110,13 @@ def mostrar_resultado(dni, data, estado='success', mensaje_api=None):
         estado_dni = "❌ DNI NO ENCONTRADO O INVÁLIDO"
     
     try:
-        # Solo mostrar el mensaje personalizado
+        # Mostrar el mensaje personalizado completo
         print()
-        print(titulo)
-        print()
-        print(mensaje_cliente)
+        print(mensaje_completo)
         print()
         
-        return True, estado_dni
+        return True, estado_dni, tiene_oferta  # ← Retornando tiene_oferta también
         
     except Exception as e:
-        return False, estado_dni
+        return False, estado_dni, False  # ← Agregado False para tiene_oferta en caso de error
+
