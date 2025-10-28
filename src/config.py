@@ -37,7 +37,8 @@ CONSULTA_API = BASE_URL + os.getenv('CONSULTA_API', '/FNB_Services/api/financiam
 # ========== CONFIGURACIÓN DE SEGURIDAD ==========
 DELAY_MIN = float(os.getenv('DELAY_MIN', '10'))
 DELAY_MAX = float(os.getenv('DELAY_MAX', '207'))
-TIMEOUT = int(os.getenv('TIMEOUT', '60'))
+TIMEOUT = int(os.getenv('TIMEOUT', '300'))  # Tiempo máximo para consultas exitosas
+QUICK_TIMEOUT = int(os.getenv('QUICK_TIMEOUT', '30'))  # Tiempo para verificación rápida
 MAX_CONSULTAS_POR_SESION = int(os.getenv('MAX_CONSULTAS_POR_SESION', '50'))
 
 # ========== DIRECTORIOS ==========
@@ -46,7 +47,10 @@ DNIS_FILE = os.getenv('DNIS_FILE', 'lista_dnis.txt')
 
 # ========== LOGGING ==========
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
-LOG_FILE = os.getenv('LOG_FILE', './src/extractor.log')
+LOG_FILE = os.getenv('LOG_FILE', 'logs/extractor.log')
+
+# Crear directorio de logs si no existe
+Path('logs').mkdir(exist_ok=True)
 
 # ========== VALIDACIÓN ==========
 def validar_configuracion():
