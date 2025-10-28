@@ -33,7 +33,6 @@ class DNIRequest(BaseModel):
 class QueryResponse(BaseModel):
     success: bool
     dni: str
-    client_title: Optional[str] = None
     client_message: Optional[str] = None
     # Versión compacta (una sola línea) adecuada para plataformas que no manejan bien saltos
     client_message_compact: Optional[str] = None
@@ -42,6 +41,7 @@ class QueryResponse(BaseModel):
     raw_output: Optional[str] = None
     error: Optional[str] = None
     return_code: int
+    tiene_oferta: bool = False
 
 @app.get('/health')
 def health():
@@ -62,27 +62,29 @@ def query_dni(body: DNIRequest):
 
     # Generar mensaje al cliente usando utilidades internas
     estado_consulta = determinar_estado_consulta(data, estado, mensaje_api)
-    title, message, _ = generar_mensaje_personalizado(estado_consulta, data, mensaje_api)
+    mensaje_completo, tiene_oferta = generar_mensaje_personalizado(estado_consulta, data, mensaje_api)
 
     # Formatear versiones alternativas del mensaje
     # compact: eliminar saltos de línea y colapsar espacios
-    compact = ' '.join(message.split()) if message else None
+    compact = ' '.join(mensaje_completo.split()) if mensaje_completo else None
     # html: reemplazar saltos de línea por <br/> (preserva texto)
-    html = message.replace('\n', '<br/>') if message else None
+    html = mensaje_completo.replace('\n', '<br/>') if mensaje_completo else None
+    
     # Retornar un JSON conciso para n8n/Chatwoot
     resp = QueryResponse(
         success=(estado == 'success' and data is not None),
         dni=dni,
-        client_title=title,
-        client_message=message,
+        client_message=mensaje_completo,
         client_message_compact=compact,
         client_message_html=html,
         raw_output=None,
         error=mensaje_api if mensaje_api else None,
-        return_code=0 if estado == 'success' else 1
+        return_code=0 if estado == 'success' else 1,
+        tiene_oferta=tiene_oferta
     )
 
     return resp
 
 if __name__ == '__main__':
     uvicorn.run('api_wrapper:app', host='0.0.0.0', port=5000, log_level='info')
+
