@@ -11,24 +11,29 @@ from pathlib import Path
 import sys
 from pathlib import Path
 
-# Agregar el directorio raíz al path de Python
+# Agregar el directorio src al path de Python
 root_dir = Path(__file__).parent.parent
+src_dir = Path(__file__).parent
 sys.path.insert(0, str(root_dir))
+sys.path.insert(0, str(src_dir))
 
 from config import (
     DELAY_MIN, DELAY_MAX, MAX_CONSULTAS_POR_SESION,
-    LOG_FILE, LOG_LEVEL, DNIS_FILE, mostrar_config
+    LOG_FILE, LOG_LEVEL, mostrar_config
 )
 from api.auth import login
 from api.client import consultar_dni
 from utils.messages import mostrar_resultado
 
 # ========== CONFIGURAR LOGGING ==========
+# Asegurar que la ruta del log sea relativa al directorio raíz
+log_path = Path(root_dir) / LOG_FILE
+
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL),
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(LOG_FILE, encoding='utf-8'),
+        logging.FileHandler(log_path, encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
