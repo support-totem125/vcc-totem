@@ -2,6 +2,8 @@
 Generación y manejo de mensajes personalizados
 """
 
+import textwrap
+
 def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
     """
     Generar mensaje personalizado según el resultado de la consulta
@@ -20,13 +22,15 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         nombre = datos.get('nombre', 'Cliente')
         monto = datos.get('lineaCredito', 0)
         
-        mensaje_completo = f"""🎉 ¡FELICITACIONES!
-
-Hola {nombre},
-¡Tenemos excelentes noticias para ti!
-Tienes una línea de crédito APROBADA por:
-💰 S/ {monto:,.2f}
-¡Gracias por confiar en Calidda!"""
+        mensaje_completo = textwrap.dedent(f"""
+            🎉 ¡FELICITACIONES!
+            
+            Hola {nombre},
+            ¡Tenemos excelentes noticias para ti!
+            Tienes una línea de crédito APROBADA por:
+            💰 S/ {monto:,.2f}
+            ¡Gracias por confiar en Calidda!
+        """).strip()
         
         return mensaje_completo, True
     
@@ -34,38 +38,43 @@ Tienes una línea de crédito APROBADA por:
         # Cliente registrado pero SIN línea de crédito
         nombre = datos.get('nombre', 'Cliente')
         
-        mensaje_completo = f"""ℹ️ INFORMACIÓN DE TU CONSULTA
-
-Hola {nombre},
-En este momento no cuentas con una línea de crédito disponible.
-Por favor, mantén tus pagos al día y continúa usando nuestro servicio.
-¡Gracias por confiar en Calidda!"""
+        mensaje_completo = textwrap.dedent(f"""
+            ℹ️ INFORMACIÓN DE TU CONSULTA
+            
+            Hola {nombre},
+            En este momento no cuentas con una línea de crédito disponible.
+            Por favor, mantén tus pagos al día y continúa usando nuestro servicio.
+            ¡Gracias por confiar en Calidda!
+        """).strip()
         
         return mensaje_completo, False
 
     elif estado == 'dni_invalido' or (mensaje_error and ('no encontrado' in mensaje_error.lower() or 'no califica' in mensaje_error.lower() or 'no tiene campaña' in mensaje_error.lower())):
         # DNI no encontrado o sin campaña activa
-        mensaje_completo = """ℹ️ INFORMACIÓN DE TU CONSULTA
-
-Lo sentimos,
-Por el momento no tienes una campaña activa.
-- Sigue usando el servicio se Calidda
-- Mantente al día con tus recibos.
-
-Gracias!"""
+        mensaje_completo = textwrap.dedent("""
+            ℹ️ INFORMACIÓN DE TU CONSULTA
+            
+            Lo sentimos,
+            Por el momento no tienes una campaña activa.
+            - Sigue usando el servicio se Calidda
+            - Mantente al día con tus recibos.
+            
+            Gracias!
+        """).strip()
         
         return mensaje_completo, False
     
     else:
         # Error genérico u otro caso (incluyendo timeout)
-        mensaje_completo = """⚠️ INFORMACIÓN
-
-Hola Cliente,
-En este momento no podemos procesar tu consulta.
-¡Gracias por tu comprensión!"""
+        mensaje_completo = textwrap.dedent("""
+            ⚠️ INFORMACIÓN
+            
+            Hola Cliente,
+            En este momento no podemos procesar tu consulta.
+            ¡Gracias por tu comprensión!
+        """).strip()
         
         return mensaje_completo, False
-
 
 def determinar_estado_consulta(data, estado, mensaje_api):
     """Determinar el estado de la consulta para mensaje personalizado"""
