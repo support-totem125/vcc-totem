@@ -35,6 +35,10 @@ class QueryResponse(BaseModel):
     dni: str
     client_title: Optional[str] = None
     client_message: Optional[str] = None
+    # Versión compacta (una sola línea) adecuada para plataformas que no manejan bien saltos
+    client_message_compact: Optional[str] = None
+    # Versión HTML donde los saltos de línea se convierten en <br/> para Chatwoot u otros clientes
+    client_message_html: Optional[str] = None
     raw_output: Optional[str] = None
     error: Optional[str] = None
     return_code: int
@@ -60,12 +64,19 @@ def query_dni(body: DNIRequest):
     estado_consulta = determinar_estado_consulta(data, estado, mensaje_api)
     title, message, _ = generar_mensaje_personalizado(estado_consulta, data, mensaje_api)
 
+    # Formatear versiones alternativas del mensaje
+    # compact: eliminar saltos de línea y colapsar espacios
+    compact = ' '.join(message.split()) if message else None
+    # html: reemplazar saltos de línea por <br/> (preserva texto)
+    html = message.replace('\n', '<br/>') if message else None
     # Retornar un JSON conciso para n8n/Chatwoot
     resp = QueryResponse(
         success=(estado == 'success' and data is not None),
         dni=dni,
         client_title=title,
         client_message=message,
+        client_message_compact=compact,
+        client_message_html=html,
         raw_output=None,
         error=mensaje_api if mensaje_api else None,
         return_code=0 if estado == 'success' else 1
