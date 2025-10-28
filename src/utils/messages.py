@@ -41,20 +41,23 @@ Por favor, mantén tus pagos al día y continúa usando nuestro servicio.
         
         return titulo, mensaje, False
 
-    elif estado == 'dni_invalido' or (mensaje_error and 'no encontrado' in mensaje_error.lower()):
-        # DNI no encontrado
-        titulo = "⚠️ DNI NO ENCONTRADO"
+    elif estado == 'dni_invalido' or (mensaje_error and ('no encontrado' in mensaje_error.lower() or 'no califica' in mensaje_error.lower() or 'no tiene campaña' in mensaje_error.lower())):
+        # DNI no encontrado o sin campaña activa
+        titulo = "ℹ️ INFORMACIÓN DE TU CONSULTA"
         mensaje = """Lo sentimos,
-No pudimos encontrar información asociada a este DNI en nuestro sistema.
-Por favor, verifica el DNI e inténtalo nuevamente."""
+Por el momento no tienes una campaña activa.
+- Sigue usando el servicio se Calidda
+- Mantente al día con tus recibos.
+
+Gracias!"""
         
         return titulo, mensaje, False
     
     else:
-        # Error genérico u otro caso
+        # Error genérico u otro caso (incluyendo timeout)
         titulo = "⚠️ INFORMACIÓN"
         
-        mensaje = f"""Hola Cliente,
+        mensaje = """Hola Cliente,
 En este momento no podemos procesar tu consulta.
 ¡Gracias por tu comprensión!"""
         
