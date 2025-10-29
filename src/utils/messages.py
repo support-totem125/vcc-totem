@@ -27,9 +27,9 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
                                            
             Hola {nombre},
             ¡Tenemos excelentes noticias para ti!
+                                           
             Tienes una línea de crédito APROBADA por:
             💰 S/ {monto:,.2f}
-
         """).strip()
         
         return mensaje_completo, True
@@ -42,11 +42,18 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
             ℹ️ INFORMACIÓN DE TU CONSULTA
                                            
             Hola {nombre},
+            Gracias por tu interés en nuestros servicios de crédito.
             En este momento no cuentas con una línea de crédito disponible.
-            
-            Por favor, mantén tus pagos al día y continúa usando nuestro servicio.
-            
-            ¡Gracias por confiar en Calidda!
+                                           
+            💡 ¿Cómo puedo calificar?
+               • Mantén tus pagos al día
+               • Continúa usando nuestro servicio regularmente
+               • Evaluamos periódicamente a nuestros clientes
+                                           
+            Sigue usando el servicio de Calidda y muy pronto podrías calificar 
+            para una oferta crediticia.
+                                           
+            ¡Hasta luego!
         """).strip()
         
         return mensaje_completo, False
@@ -55,12 +62,19 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         # DNI no encontrado o sin campaña activa
         mensaje_completo = textwrap.dedent("""
             ℹ️ INFORMACIÓN DE TU CONSULTA
-            Lo sentimos,
+                                           
+            Gracias por tu interés en nuestros servicios de crédito.
             En este momento no cuentas con una línea de crédito disponible.
-            
-            Por favor, mantén tus pagos al día y continúa usando nuestro servicio.
-            
-            ¡Gracias por confiar en Calidda!
+                                           
+            💡 ¿Cómo puedo calificar?
+               • Mantén tus pagos al día
+               • Continúa usando nuestro servicio regularmente
+               • Evaluamos periódicamente a nuestros clientes
+                                           
+            Sigue usando el servicio de Calidda y muy pronto podrías calificar 
+            para una oferta crediticia.
+                                           
+            ¡Hasta luego!
         """).strip()
         
         return mensaje_completo, False
@@ -69,9 +83,10 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
         # Error genérico u otro caso (incluyendo timeout)
         mensaje_completo = textwrap.dedent("""
             ⚠️ INFORMACIÓN
+                                           
             Hola Cliente,
             En este momento no podemos procesar tu consulta.
-
+                                           
             ¡Gracias por tu comprensión!
         """).strip()
         
