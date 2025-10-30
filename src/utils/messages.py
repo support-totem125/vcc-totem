@@ -31,15 +31,6 @@ def generar_mensaje_personalizado(estado, datos=None, mensaje_error=None):
             Tienes una línea de crédito APROBADA por:
             💰 S/ {monto:,.2f} soles !!!
                                            
-            Selecciona la categoría del producto que deseas financiar:
-                                           
-            1. Celulares
-            2. Laptops
-            3. Televisores
-            4. Refrigeradoras
-            5. Lavadoras
-            6. Materiales de construcción
-            7. Muebles
         """).strip()
         
         return mensaje_completo, True
